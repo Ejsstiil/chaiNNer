@@ -140,6 +140,9 @@ def save_as_dds(
 
         if separate_alpha:
             args.append("-sepalpha")
+        if dx9:
+            args.append("-fl")
+            args.append("9.3")
 
         args.append(tempPng)
         __run_texconv(args, "Unable to write DDS")
