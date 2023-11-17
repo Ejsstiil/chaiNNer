@@ -20,8 +20,8 @@ from nodes.impl.image_formats import (
     get_opencv_formats,
     get_pil_formats,
 )
-from nodes.properties.inputs import ImageFileInput, TextInput, EnumInput
-from nodes.properties.outputs import FileNameOutput, LargeImageOutput, TextOutput
+from nodes.properties.inputs import TextInput, EnumInput
+from nodes.properties.outputs import LargeImageOutput, TextOutput
 from nodes.utils.utils import get_h_w_c, split_file_path
 
 from .. import io_group
@@ -144,6 +144,7 @@ TEX_LABEL: Dict[TEXTURE, str] = {
                   default = "g:\\Steam\\SteamApps\\common\\Supreme Commander Forged Alliance\\gamedata\\units.scd"),
         TextInput("Unit name", default="UEB0301", min_length = 3),
         EnumInput(TEXTURE, "Texture", option_labels = TEX_LABEL, default = TEXTURE.Albedo),
+        TextInput("Target directory", default="c:\\devel\\FAF\\fa\\units\\"),
 
     ],
     outputs=[
@@ -163,24 +164,26 @@ TEX_LABEL: Dict[TEXTURE, str] = {
                         };
                         string::concat(Input1, "_", tex, ".dds")
                     """
-                   )
+                   ),
+        TextOutput("Target dir", output_type = "string::concat(Input3)"),
     ],
 )
-def load_image_node(path: str, unit: str, texture: TEXTURE) -> Tuple[np.ndarray, str, str, str]:
+def load_image_node(_path: str, unit: str, texture: TEXTURE, target: str) -> Tuple[np.ndarray, str, str, str, str]:
     """Reads an image from the specified path and return it as a numpy array"""
 
     texture = texture.name
     filename = unit + "_" + texture + ".dds"
 
+    path = _path
     compressed = False
-    if path.endswith(".scd"):
+    if path.endswith("units.scd"):
         compressed = True
         tempdir = mkdtemp(prefix = "chaiNNerSCD-")
-        logger.warning(f"making: {tempdir}")
+        # logger.warning(f"making: {tempdir}")
         with ZipFile(path, 'r') as z:
             z.extract("units/" + unit + "/" + filename, path=tempdir)
         path = tempdir + "\\units\\" + unit + "\\" + filename
-        logger.warning(f"loadng: {path}")
+        # logger.warning(f"loadng: {_path}")
 
     else:
         path = path.removesuffix("\\") + "\\" + unit + "\\" + filename
@@ -213,4 +216,4 @@ def load_image_node(path: str, unit: str, texture: TEXTURE) -> Tuple[np.ndarray,
             f'The image "{path}" you are trying to read cannot be read by chaiNNer.'
         )
 
-    return img, dirname, unit, filename
+    return img, path, unit, filename, target
