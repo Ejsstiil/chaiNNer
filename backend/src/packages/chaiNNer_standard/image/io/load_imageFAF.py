@@ -121,11 +121,13 @@ valid_formats = get_available_image_formats()
 class TEXTURE(Enum):
     Albedo = "Albedo"
     SpecTeam = "SpecTeam"
+    normalsTS = "normals"
 
 
 TEX_LABEL: Dict[TEXTURE, str] = {
     TEXTURE.Albedo: "Albedo",
     TEXTURE.SpecTeam: "SpecTeam",
+    TEXTURE.normalsTS: "normalsTS",
 }
 
 
@@ -161,6 +163,7 @@ TEX_LABEL: Dict[TEXTURE, str] = {
                         let tex = match Input2 {
                             TEXTURE::Albedo => "Albedo",
                             TEXTURE::Specteam => "SpecTeam",
+                            TEXTURE::Normalsts => "normalsTS",
                         };
                         string::concat(Input1, "_", tex, ".dds")
                     """
