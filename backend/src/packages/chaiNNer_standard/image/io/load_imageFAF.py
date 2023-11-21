@@ -165,7 +165,7 @@ TEX_LABEL: Dict[TEXTURE, str] = {
                             TEXTURE::Specteam => "SpecTeam",
                             TEXTURE::Normalsts => "normalsTS",
                         };
-                        string::concat(Input1, "_", tex, ".dds")
+                        string::concat(Input1, "_", tex)
                     """
                    ),
         TextOutput("Target dir", output_type = "string::concat(Input3)"),
@@ -175,7 +175,7 @@ def load_image_node(_path: str, unit: str, texture: TEXTURE, target: str) -> Tup
     """Reads an image from the specified path and return it as a numpy array"""
 
     texture = texture.name
-    filename = unit + "_" + texture + ".dds"
+    filename = unit + "_" + texture
 
     path = _path
     compressed = False
@@ -184,12 +184,12 @@ def load_image_node(_path: str, unit: str, texture: TEXTURE, target: str) -> Tup
         tempdir = mkdtemp(prefix = "chaiNNerSCD-")
         # logger.warning(f"making: {tempdir}")
         with ZipFile(path, 'r') as z:
-            z.extract("units/" + unit + "/" + filename, path=tempdir)
-        path = tempdir + "\\units\\" + unit + "\\" + filename
+            z.extract("units/" + unit + "/" + filename + ".dds", path=tempdir)
+        path = tempdir + "\\units\\" + unit + "\\" + filename + ".dds"
         # logger.warning(f"loadng: {_path}")
 
     else:
-        path = path.removesuffix("\\") + "\\" + unit + "\\" + filename
+        path = path.removesuffix("\\") + "\\" + unit + "\\" + filename + ".dds"
 
 
     logger.debug(f"Reading image from path: {path}")
@@ -219,4 +219,4 @@ def load_image_node(_path: str, unit: str, texture: TEXTURE, target: str) -> Tup
             f'The image "{path}" you are trying to read cannot be read by chaiNNer.'
         )
 
-    return img, path, unit, filename, target
+    return img, _path, unit, filename, target
