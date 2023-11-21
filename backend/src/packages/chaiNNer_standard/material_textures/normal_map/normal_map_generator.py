@@ -11,7 +11,7 @@ from nodes.impl.image_utils import fast_gaussian_blur
 from nodes.impl.normals.edge_filter import EdgeFilter, get_filter_kernels
 from nodes.impl.normals.height import HeightSource, get_height_map
 from nodes.properties.inputs import (
-    EnumInput,
+    BoolInput, EnumInput,
     ImageInput,
     NormalChannelInvertInput,
     SliderInput,
@@ -217,6 +217,8 @@ def normalize(x: np.ndarray, y: np.ndarray):
             default=AlphaOutput.NONE,
             option_labels={AlphaOutput.ONE: "Set to 1"},
         ).with_id(7),
+        BoolInput("Supcom type map - x(rbg) y(alpha)", default = False)
+        .with_docs("Mixes X axis into all channels, Alpha for the Y"),
     ],
     outputs=[
         ImageOutput(
@@ -245,6 +247,7 @@ def normal_map_generator_node(
     gauss_scale8: float,
     invert: int,
     alpha_output: AlphaOutput,
+    supcommix: bool
 ) -> np.ndarray:
     h, w, c = get_h_w_c(img)
     height = get_height_map(img, height_source)
@@ -300,6 +303,10 @@ def normal_map_generator_node(
     r = (x + 1) * 0.5
     g = (y + 1) * 0.5
     b = np.abs(z)
+    if supcommix:
+        a = r
+        r = g
+        b = g
 
     channels = (b, g, r) if a is None else (b, g, r, a)
 
